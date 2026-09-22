@@ -15,6 +15,7 @@ import DoughnutChart from './components/DoughnutChart';
 import HorizontalBarChart from './components/HorizontalBarChart';
 import TablePage from './components/TablePage';
 import GaugeChart from './components/GaugeChart';
+import DailyResponsesChart from './components/DailyResponsesChart';
 
 export default function App() {
   const [data, setData] = useState<any>(null);
@@ -91,9 +92,15 @@ export default function App() {
               </div>
 
               {/* Row 3: Bar Chart */}
-              <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
-                <h2 className="text-lg font-bold mb-4">Como recebeu</h2>
-                <HorizontalBarChart />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
+                  <h2 className="text-lg font-bold mb-4">Como recebeu</h2>
+                  <HorizontalBarChart />
+                </div>
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
+                  <h2 className="text-lg font-bold mb-4">Respostas por dia</h2>
+                  {data?.list && <DailyResponsesChart data={data.list} />}
+                </div>
               </div>
             </div>
           ) : (
