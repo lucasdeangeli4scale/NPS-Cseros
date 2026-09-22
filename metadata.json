@@ -1,0 +1,6 @@
+{
+  "name": "Pesquisa NPS - Cséros",
+  "description": "Painel interativo para monitorar métricas NPS com dados do NocoDB.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
