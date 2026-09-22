@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 
 interface DailyResponsesChartProps {
   data: any[];
@@ -7,12 +7,17 @@ interface DailyResponsesChartProps {
 export default function DailyResponsesChart({ data }: DailyResponsesChartProps) {
   // Aggregate data by date
   const aggregated = data.reduce((acc: any, curr: any) => {
-    // Corrected key: use 'Data-Hora' as seen in the table header
-    const rawValue = curr['Data-Hora'];
+    // Corrected key: use 'Data e Hora' as updated in the table
+    const rawValue = curr['Data e Hora'];
     
     if (!rawValue) return acc;
 
-    let rawDate = new Date(rawValue);
+    // Normalize format: Replace space with T if it matches YYYY-MM-DD HH:MM
+    const normalizedValue = typeof rawValue === 'string' && rawValue.includes(' ') && !rawValue.includes('T') 
+      ? rawValue.replace(' ', 'T') 
+      : rawValue;
+
+    let rawDate = new Date(normalizedValue);
     
     // Fallback: If invalid date, try parsing dd/mm/yyyy
     if (isNaN(rawDate.getTime()) && typeof rawValue === 'string' && rawValue.includes('/')) {
@@ -49,16 +54,18 @@ export default function DailyResponsesChart({ data }: DailyResponsesChartProps) 
 
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart
+      <LineChart
         data={chartData}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="date" />
         <YAxis />
         <Tooltip />
-        <Bar dataKey="count" fill="#8884d8" />
-      </BarChart>
+        <Line type="monotone" dataKey="count" stroke="#8884d8" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 8 }}>
+            <LabelList dataKey="count" position="top" />
+        </Line>
+      </LineChart>
     </ResponsiveContainer>
   );
 }

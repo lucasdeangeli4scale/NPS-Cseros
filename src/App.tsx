@@ -9,7 +9,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Table, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Table, HelpCircle, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 import DoughnutChart from './components/DoughnutChart';
 import HorizontalBarChart from './components/HorizontalBarChart';
@@ -20,15 +20,44 @@ import DailyResponsesChart from './components/DailyResponsesChart';
 export default function App() {
   const [data, setData] = useState<any>(null);
   const [page, setPage] = useState<'dashboard' | 'table'>('dashboard');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Fetch data from server proxy
+  const fetchData = () => {
+    setLoading(true);
     axios.get('/api/noco-data')
       .then(res => {
         setData(res.data);
       })
-      .catch(err => console.error(err));
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
+
+  // Calculate metrics
+  const list = data?.list || [];
+  const total = list.length;
+  
+  // Calculate NPS Score (Assuming a column named 'Nota' exists or similar)
+  // Since we don't know the exact column name for NPS, let's look for something numeric
+  // or use a placeholder if not found. Let's assume there's a column for NPS rating.
+  // For now, let's mock it based on the previous hardcoded value if column is missing.
+  const npsScore = 72; // Placeholder
+
+  // Aggregate 'Como recebeu'
+  const comoRecebeu = list.reduce((acc: any, curr: any) => {
+    const key = curr['1. Como você recebeu o Myde Pés?'] || 'Outro';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  const comoRecebeuData = Object.keys(comoRecebeu).map(name => ({
+    name,
+    value: comoRecebeu[name]
+  }));
+
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors">
@@ -47,6 +76,13 @@ export default function App() {
             >
               <Table size={18} /> Tabela
             </button>
+            <button 
+              onClick={fetchData}
+              disabled={loading}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <RefreshCw size={18} className={loading ? 'animate-spin' : ''} /> Recarregar
+            </button>
             
           </div>
         </header>
@@ -58,7 +94,7 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
                   <h2 className="text-sm text-slate-500">Total de respostas</h2>
-                  <p className="text-3xl font-bold mt-2">{data?.list ? data.list.length : 0}</p>
+                  <p className="text-3xl font-bold mt-2">{total}</p>
                 </div>
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
                   <h2 className="text-sm text-slate-500">Experiência Média</h2>
@@ -82,8 +118,7 @@ export default function App() {
                       </div>
                     </div>
                   </div>
-                  <GaugeChart score={72} />
-                  <p className="text-center text-slate-500 mt-4">Balanced Performance</p>
+                  <GaugeChart score={npsScore} />
                 </div>
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
                   <h2 className="text-lg font-bold mb-4">Já usou antes</h2>
@@ -95,7 +130,7 @@ export default function App() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
                   <h2 className="text-lg font-bold mb-4">Como recebeu</h2>
-                  <HorizontalBarChart />
+                  <HorizontalBarChart data={comoRecebeuData} />
                 </div>
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm">
                   <h2 className="text-lg font-bold mb-4">Respostas por dia</h2>

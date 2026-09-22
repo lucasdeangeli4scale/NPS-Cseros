@@ -1,10 +1,6 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } from 'recharts';
 
-const data = [
-  { name: 'Ganhei o Myde', value: 1 },
-];
-
-export default function HorizontalBarChart() {
+export default function HorizontalBarChart({ data }: { data: any[] }) {
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart
@@ -14,9 +10,11 @@ export default function HorizontalBarChart() {
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis type="number" />
-        <YAxis dataKey="name" type="category" />
+        <YAxis dataKey="name" type="category" width={100} />
         <Tooltip />
-        <Bar dataKey="value" fill="#3b82f6" />
+        <Bar dataKey="value" fill="#3b82f6" barSize={20}>
+          <LabelList dataKey="value" position="right" />
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
